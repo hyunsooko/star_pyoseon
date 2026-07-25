@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>STAR SECRETS LAB: 통합 역동적 시뮬레이션</title>
+    <title>STAR SECRETS LAB: 오개념 정복 완성본</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/dist/css/all.min.css">
     <style>
@@ -29,34 +29,34 @@
         }
         #lab3-observer-star { width: 8px; height: 8px; background: white; border-radius: 50%; transition: all 0.2s ease-out; }
 
-        /* 연주시차 실시간 투영선 */
-        #lab2-line-live { stroke: #38bdf8; stroke-width: 2; stroke-dasharray: 2; opacity: 0.8; }
-        #lab2-point-live { filter: blur(2px); transition: opacity 0.3s; }
+        /* FAQ 스타일 */
+        .faq-item { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 1rem; padding: 1.25rem; transition: all 0.3s; }
+        .faq-q { color: #38bdf8; font-weight: 800; margin-bottom: 0.5rem; display: flex; align-items: start; }
+        .faq-a { color: #cbd5e1; font-size: 0.875rem; line-height: 1.6; }
     </style>
 </head>
-<body class="min-h-screen pb-12">
+<body class="min-h-screen pb-20">
 
     <header class="p-6 max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-6">
         <div class="text-center lg:text-left">
             <h1 class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-emerald-400 to-red-400 uppercase italic">Star Secrets Lab</h1>
-            <p class="text-slate-400 text-sm">중·고교 과학 별의 특성 통합 시뮬레이션</p>
+            <p class="text-slate-400 text-sm font-medium">별의 특성 통합 사고 실험실</p>
         </div>
         <nav class="flex space-x-2 glass p-1 rounded-2xl">
             <button onclick="App.switchTab('temp')" id="btn-temp" class="tab-active px-6 py-2 rounded-xl text-xs transition">1. 온도와 색깔</button>
             <button onclick="App.switchTab('parallax')" id="btn-parallax" class="px-6 py-2 rounded-xl text-xs transition text-slate-400">2. 연주시차와 거리</button>
             <button onclick="App.switchTab('magnitude')" id="btn-magnitude" class="px-6 py-2 rounded-xl text-xs transition text-slate-400">3. 별의 등급(10pc)</button>
         </nav>
-        <button onclick="App.openSet()" class="bg-slate-800 p-3 rounded-full text-yellow-400"><i class="fas fa-cog text-xl"></i></button>
     </header>
 
     <main class="max-w-7xl mx-auto px-4">
 
-        <!-- 🧪 실험 1: 별의 온도와 색깔 (고정) -->
+        <!-- 🧪 실험 1: 별의 온도와 색깔 -->
         <section id="view-temp" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div class="glass p-8 rounded-[2rem] space-y-8">
                 <h2 class="text-xl font-bold text-red-400 flex items-center gap-2"><i class="fas fa-temperature-high"></i> 별의 온도와 색깔</h2>
                 <div class="space-y-6">
-                    <div class="flex justify-between items-end font-mono"><span class="text-slate-500 text-xs tracking-widest">Surface Temp</span><span id="lab1-t-val" class="text-5xl font-black italic">6,000 K</span></div>
+                    <div class="flex justify-between items-end font-mono"><span class="text-slate-500 text-xs">Surface Temperature</span><span id="lab1-t-val" class="text-5xl font-black italic">6,000 K</span></div>
                     <input type="range" id="lab1-t-slider" min="3000" max="30000" step="100" value="6000" class="temp-gradient">
                 </div>
                 <div id="lab1-star-list" class="flex flex-wrap gap-2 pt-4 border-t border-white/5"></div>
@@ -67,54 +67,46 @@
             </div>
         </section>
 
-        <!-- 🧪 실험 2: 연주시차와 거리 (공전 애니메이션 추가 버전) -->
+        <!-- 🧪 실험 2: 연주시차와 거리 -->
         <section id="view-parallax" class="hidden grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div class="glass p-8 rounded-[2rem] space-y-6">
-                <h2 class="text-xl font-bold text-emerald-400 flex items-center gap-2"><i class="fas fa-sync-alt"></i> 연주시차와 역동적 공전</h2>
+                <h2 class="text-xl font-bold text-emerald-400 flex items-center gap-2"><i class="fas fa-sync-alt"></i> 연주시차와 거리 관계</h2>
                 <div class="space-y-6">
                     <div class="flex justify-between font-mono items-end"><span class="text-slate-500 text-xs uppercase">Distance (d)</span><span id="lab2-d-val" class="text-emerald-400 font-black text-3xl italic">1.30 pc</span></div>
                     <input type="range" id="lab2-d-slider" min="1" max="10" step="0.1" value="1.3">
                     <div class="bg-black/40 p-6 rounded-2xl border border-emerald-500/20 text-center">
-                        <p class="text-[10px] text-emerald-500 font-black mb-1 uppercase">연주시차(p") = 1 / d</p>
-                        <p id="lab2-p-calc" class="text-5xl font-black italic text-white tracking-tighter">0.77"</p>
+                        <p class="text-[10px] text-emerald-500 font-black mb-1 uppercase">연주시차(p") = 1 / 거리(d)</p>
+                        <p id="lab2-p-calc" class="text-5xl font-black italic text-white italic tracking-tighter">0.77"</p>
                     </div>
                 </div>
-                <div class="p-4 bg-blue-900/20 rounded-xl border border-blue-500/30">
-                    <p class="text-[11px] text-blue-300 leading-relaxed font-bold">
-                        <i class="fas fa-info-circle mr-1"></i> 지구가 궤도를 따라 움직이면 배경 별들 사이에서 별 S의 위치가 희미하게 잔상을 남기며 실시간으로 변하는 것을 관찰하세요.
-                    </p>
+                <div class="flex flex-wrap gap-2 pt-4 border-t border-white/5">
+                    <p class="w-full text-[10px] font-bold text-slate-500 uppercase mb-1">실제 별 선택</p>
+                    <button onclick="Lab2.setStar(1.3, '프록시마')" class="px-3 py-2 bg-slate-800 rounded-xl text-xs font-bold hover:bg-emerald-600 transition">프록시마(1.3pc)</button>
+                    <button onclick="Lab2.setStar(2.6, '시리우스')" class="px-3 py-2 bg-slate-800 rounded-xl text-xs font-bold hover:bg-emerald-600 transition">시리우스(2.6pc)</button>
+                    <button onclick="Lab2.setStar(7.7, '베가')" class="px-3 py-2 bg-slate-800 rounded-xl text-xs font-bold hover:bg-emerald-600 transition">베가(7.7pc)</button>
                 </div>
             </div>
             <div class="glass rounded-[2rem] min-h-[450px] relative overflow-hidden bg-slate-950">
                 <svg id="lab2-svg" viewBox="0 0 600 400">
-                    <g opacity="0.3"><circle cx="550" cy="50" r="1.5" fill="white"/><circle cx="550" cy="150" r="1.5" fill="white"/><circle cx="550" cy="250" r="1.5" fill="white"/><circle cx="550" cy="350" r="1.5" fill="white"/></g>
-                    <!-- 태양 -->
                     <circle cx="80" cy="200" r="22" fill="url(#lab2-sun-grad)" />
                     <defs><radialGradient id="lab2-sun-grad"><stop offset="0%" stop-color="#fff7ed"/><stop offset="60%" stop-color="#f59e0b"/><stop offset="100%" stop-color="#ea580c"/></radialGradient></defs>
-                    <!-- 궤도 -->
                     <ellipse cx="80" cy="200" rx="40" ry="100" fill="none" stroke="white" stroke-opacity="0.1" stroke-dasharray="3" />
-                    <!-- 고정 지점 A, B -->
                     <g id="lab2-earth-a" opacity="0.4"><circle cx="80" cy="100" r="7" fill="#3b82f6" stroke="white"/><text x="58" y="105" fill="white" font-size="10" font-weight="bold">A</text></g>
                     <g id="lab2-earth-b" opacity="0.4"><circle cx="80" cy="300" r="7" fill="#3b82f6" stroke="white"/><text x="58" y="305" fill="white" font-size="10" font-weight="bold">B</text></g>
-                    <!-- 고정 시선 라인 -->
                     <line id="lab2-line-a" stroke="white" stroke-opacity="0.1" stroke-dasharray="4" />
                     <line id="lab2-line-b" stroke="white" stroke-opacity="0.1" stroke-dasharray="4" />
                     <circle id="lab2-point-a" r="5" fill="#fde047" opacity="0.3" />
                     <circle id="lab2-point-b" r="5" fill="#fde047" opacity="0.3" />
-
-                    <!-- 🌟 실시간 공전 요소 -->
-                    <line id="lab2-line-live" x1="80" y1="200" x2="550" y2="200" />
+                    <line id="lab2-line-live" x1="80" y1="200" x2="550" y2="200" stroke="#38bdf8" stroke-width="2" stroke-dasharray="2" />
                     <circle id="lab2-earth-live" r="9" fill="#3b82f6" stroke="white" stroke-width="1.5" />
-                    <circle id="lab2-point-live" r="7" fill="#fde047" />
-                    
-                    <!-- 별 S (크기 고정) -->
+                    <circle id="lab2-point-live" r="7" fill="#fde047" filter="blur(2px)" />
                     <circle id="lab2-star" r="10" fill="#fde047" />
                     <text id="lab2-star-label" y="25" fill="white" font-size="11" font-weight="black" text-anchor="middle">별 S</text>
                 </svg>
             </div>
         </section>
 
-        <!-- 🧪 실험 3: 별의 등급 (고정) -->
+        <!-- 🧪 실험 3: 별의 등급 -->
         <section id="view-magnitude" class="hidden grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div class="glass p-8 rounded-[2rem] space-y-6">
                 <h2 class="text-xl font-bold text-yellow-400 flex items-center gap-2"><i class="fas fa-eye"></i> 별의 거리와 등급</h2>
@@ -124,12 +116,11 @@
                 </div>
                 <div class="bg-black/40 rounded-2xl overflow-hidden border border-white/10 font-bold">
                     <table class="w-full text-sm">
-                        <tr class="bg-white/5 border-b border-white/5"><td class="p-4 text-slate-400">절대 등급 (M)</td><td class="p-4 text-right text-blue-400 font-black text-xl tracking-tighter">4.80</td></tr>
-                        <tr class="border-b border-white/5"><td class="p-4 text-slate-400">겉보기 등급 (m)</td><td id="lab3-m-val" class="p-4 text-right text-yellow-400 font-black text-xl italic tracking-tighter">4.80</td></tr>
-                        <tr class="bg-white/5"><td class="p-4 text-white text-lg italic uppercase">등급 차 (m - M)</td><td id="lab3-diff-val" class="p-4 text-right text-white font-black text-3xl tracking-tighter">0.00</td></tr>
+                        <tr class="bg-white/5 border-b border-white/5"><td class="p-4 text-slate-400 italic">절대 등급 (M)</td><td class="p-4 text-right text-blue-400 font-black text-xl tracking-tighter">4.80</td></tr>
+                        <tr class="border-b border-white/5"><td class="p-4 text-slate-400 italic">겉보기 등급 (m)</td><td id="lab3-m-val" class="p-4 text-right text-yellow-400 font-black text-xl italic tracking-tighter">4.80</td></tr>
+                        <tr class="bg-white/5"><td class="p-4 text-white text-lg italic uppercase">등급 차 (m - M)</td><td id="lab3-diff-val" class="p-4 text-right text-white text-3xl tracking-tighter">0.00</td></tr>
                     </table>
                 </div>
-                <!-- 관측자 시점 밝기 박스 -->
                 <div class="brightness-box shadow-inner">
                     <p class="absolute top-3 left-4 text-[10px] font-bold text-blue-400 uppercase tracking-widest"><i class="fas fa-eye mr-1"></i> 지구 관측자 시점</p>
                     <div id="lab3-observer-star"></div>
@@ -148,28 +139,20 @@
             </div>
         </section>
 
-        <!-- AI Assistant -->
-        <div class="mt-10 glass p-8 rounded-[3rem] border-purple-500/30">
-            <h3 class="font-black text-xl mb-6 flex items-center gap-3"><i class="fas fa-robot text-purple-400"></i> AI 천문학자 분석</h3>
-            <div class="flex flex-col md:flex-row gap-4">
-                <textarea id="ai-q" class="flex-1 bg-black/40 border border-white/10 rounded-2xl p-5 text-sm focus:ring-2 focus:ring-purple-500 outline-none" rows="2" placeholder="가설을 세워보세요!"></textarea>
-                <button onclick="App.askAI()" id="ai-btn" class="bg-gradient-to-br from-purple-600 to-indigo-600 px-8 py-4 rounded-2xl font-black hover:scale-105 active:scale-95 transition-all shadow-lg shadow-purple-900/40">분석 시작</button>
+        <!-- 💡 [신설] 실험별 오개념 FAQ (선생님 요청사항) -->
+        <div id="faq-section" class="mt-12 space-y-6">
+            <h3 class="text-2xl font-black flex items-center gap-3 px-2">
+                <span class="w-10 h-10 bg-yellow-500 text-black rounded-full flex items-center justify-center text-sm">!</span>
+                잠깐! 헷갈리기 쉬운 별의 비밀 (오개념 FAQ)
+            </h3>
+            <div id="faq-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                <!-- 탭에 따라 내용이 자동으로 채워짐 -->
             </div>
-            <div id="ai-a" class="hidden mt-6 p-6 bg-black/60 rounded-2xl text-sm leading-relaxed text-slate-300 border border-white/5"></div>
         </div>
+
     </main>
 
-    <!-- Settings -->
-    <div id="modal-set" class="fixed inset-0 bg-black/90 hidden items-center justify-center z-50 p-6 backdrop-blur-md">
-        <div class="glass p-8 rounded-[2.5rem] max-w-sm w-full border border-white/10">
-            <h2 class="text-xl font-bold mb-6 text-yellow-400 italic">API KEY</h2>
-            <input type="password" id="api-key-input" class="w-full bg-black/40 border border-white/10 p-4 rounded-xl mb-6 text-white" placeholder="Gemini API Key">
-            <div class="flex gap-2"><button onclick="App.saveKey()" class="flex-1 bg-blue-600 py-4 rounded-xl font-bold">저장</button><button onclick="App.closeSet()" class="flex-1 bg-slate-700 py-4 rounded-xl font-bold">닫기</button></div>
-        </div>
-    </div>
-
     <script>
-        // Lab 1 (유지)
         const Lab1 = {
             data: [
                 { min: 25000, max: 30000, color: '청색', spectral: 'O', hex: '#4d88ff', names: ['나오스'] },
@@ -180,11 +163,16 @@
                 { min: 3500, max: 5000, color: '주황색', spectral: 'K', hex: '#ffa347', names: ['아르크투루스', '알데바란'] },
                 { min: 3000, max: 3500, color: '적색', spectral: 'M', hex: '#ff4d4d', names: ['베텔게우스', '안타레스'] }
             ],
+            faqs: [
+                { q: "붉은색 별은 뜨겁고, 푸른색 별은 차갑지 않나요?", a: "반대입니다! 가스레인지 불꽃이나 대장간의 쇳물을 생각해보세요. 온도가 낮을수록 붉은색을 띠고, 온도가 높아질수록 푸른색을 띱니다. 별의 온도와 색깔은 '빈의 변위 법칙'을 따릅니다." },
+                { q: "별의 색깔이 별의 크기를 결정하나요?", a: "아닙니다. 색깔은 오직 별의 '표면 온도' 정보만 알려줍니다. 같은 노란색 별이라도 태양처럼 작은 주계열성일 수도 있고, 아주 거대한 거성일 수도 있습니다." }
+            ],
             init() { document.getElementById('lab1-t-slider').oninput = () => this.update(); this.update(); },
             update() {
                 const T = parseInt(document.getElementById('lab1-t-slider').value);
                 const info = this.data.find(s => T >= s.min && T <= s.max) || this.data[0];
                 document.getElementById('lab1-t-val').innerText = T.toLocaleString() + ' K';
+                document.getElementById('lab1-t-val').style.color = info.hex;
                 document.getElementById('lab1-spectral').innerText = 'Spectral Type ' + info.spectral;
                 document.getElementById('lab1-color-name').innerText = info.color + ' 별';
                 document.getElementById('lab1-color-name').style.color = info.hex;
@@ -195,27 +183,22 @@
             }
         };
 
-        // Lab 2 (공전 애니메이션 및 투영 로직 추가)
         const Lab2 = {
             angle: 0,
-            init() { 
-                document.getElementById('lab2-d-slider').oninput = () => this.updateUI(); 
-                this.updateUI();
-                this.animate();
-            },
+            faqs: [
+                { q: "연주시차는 별이 실제로 우주에서 움직이는 각도인가요?", a: "아닙니다! 별은 가만히 있는데, 지구가 태양 주위를 공전하기 때문에 생기는 '겉보기 움직임'입니다. 관측자의 위치가 바뀌어서 생기는 현상일 뿐입니다." },
+                { q: "모든 별의 연주시차를 측정할 수 있나요?", a: "이론적으로는 그렇지만, 너무 멀리 있는 별은 시차가 너무 작아서 지구에서는 측정하기 매우 어렵습니다. 그래서 시차가 측정되는 별은 상대적으로 우리와 가까운 별들입니다." }
+            ],
+            init() { document.getElementById('lab2-d-slider').oninput = () => this.updateUI(); this.updateUI(); this.animate(); },
+            setStar(d, name) { document.getElementById('lab2-d-slider').value = d; document.getElementById('lab2-star-label').innerText = name; this.updateUI(); },
             updateUI() {
                 const d = parseFloat(document.getElementById('lab2-d-slider').value);
                 document.getElementById('lab2-d-val').innerText = d.toFixed(2) + ' pc';
                 document.getElementById('lab2-p-calc').innerText = (1/d).toFixed(2) + '"';
-                
-                // 정적 도식 고정 (A, B 지점 고정 시선)
                 const sx = 80 + d * 45, sy = 200, bx = 550;
-                const byA = 100 + (sy - 100) * (bx - 80) / (sx - 80);
-                const byB = 300 + (sy - 300) * (bx - 80) / (sx - 80);
-                document.getElementById('lab2-star').setAttribute('cx', sx);
-                document.getElementById('lab2-star').setAttribute('cy', sy);
-                document.getElementById('lab2-star-label').setAttribute('x', sx);
-                document.getElementById('lab2-star-label').setAttribute('y', sy + 25);
+                const byA = 100 + (sy - 100) * (bx - 80) / (sx - 80), byB = 300 + (sy - 300) * (bx - 80) / (sx - 80);
+                document.getElementById('lab2-star').setAttribute('cx', sx); document.getElementById('lab2-star').setAttribute('cy', sy);
+                document.getElementById('lab2-star-label').setAttribute('x', sx); document.getElementById('lab2-star-label').setAttribute('y', sy + 25);
                 document.getElementById('lab2-line-a').setAttribute('x1', 80); document.getElementById('lab2-line-a').setAttribute('y1', 100);
                 document.getElementById('lab2-line-a').setAttribute('x2', bx); document.getElementById('lab2-line-a').setAttribute('y2', byA);
                 document.getElementById('lab2-line-b').setAttribute('x1', 80); document.getElementById('lab2-line-b').setAttribute('y1', 300);
@@ -224,108 +207,71 @@
                 document.getElementById('lab2-point-b').setAttribute('cx', bx); document.getElementById('lab2-point-b').setAttribute('cy', byB);
             },
             animate() {
-                this.angle += 0.015; // 공전 속도
+                this.angle += 0.015;
                 const d = parseFloat(document.getElementById('lab2-d-slider').value);
-                
-                // 실시간 지구 좌표 (궤도 타원 80, 200 중심 / rx=40, ry=100)
-                const ex = 80 + 40 * Math.cos(this.angle);
-                const ey = 200 + 100 * Math.sin(this.angle);
-                
-                // 실시간 별 좌표
+                const ex = 80 + 40 * Math.cos(this.angle), ey = 200 + 100 * Math.sin(this.angle);
                 const sx = 80 + d * 45, sy = 200, bx = 550;
-                
-                // 실시간 투영 지점 계산 (직선 방정식 활용)
                 const byLive = ey + (sy - ey) * (bx - ex) / (sx - ex);
-
-                // 실시간 요소 업데이트
-                const earth = document.getElementById('lab2-earth-live');
-                const line = document.getElementById('lab2-line-live');
-                const point = document.getElementById('lab2-point-live');
-
-                earth.setAttribute('cx', ex); earth.setAttribute('cy', ey);
-                line.setAttribute('x1', ex); line.setAttribute('y1', ey);
-                line.setAttribute('x2', bx); line.setAttribute('y2', byLive);
-                point.setAttribute('cx', bx); point.setAttribute('cy', byLive);
-                
-                // 움직이는 별의 상 '희미하게' 처리 (거리/위치에 따른 투명도 변화 및 잔상 느낌)
-                point.style.opacity = 0.5 + 0.3 * Math.sin(this.angle);
-
+                document.getElementById('lab2-earth-live').setAttribute('cx', ex); document.getElementById('lab2-earth-live').setAttribute('cy', ey);
+                document.getElementById('lab2-line-live').setAttribute('x1', ex); document.getElementById('lab2-line-live').setAttribute('y1', ey);
+                document.getElementById('lab2-line-live').setAttribute('x2', bx); document.getElementById('lab2-line-live').setAttribute('y2', byLive);
+                document.getElementById('lab2-point-live').setAttribute('cx', bx); document.getElementById('lab2-point-live').setAttribute('cy', byLive);
+                document.getElementById('lab2-point-live').style.opacity = 0.5 + 0.3 * Math.sin(this.angle);
                 requestAnimationFrame(() => this.animate());
-            },
-            setStar(d, name) { document.getElementById('lab2-d-slider').value = d; document.getElementById('lab2-star-label').innerText = name; this.updateUI(); }
+            }
         };
 
-        // Lab 3 (유지)
         const Lab3 = {
+            faqs: [
+                { q: "숫자가 큰 별이 더 밝은 별 아닌가요?", a: "가장 흔한 실수입니다! 등급의 숫자가 작을수록(마이너스로 갈수록) 더 밝은 별입니다. 1등급 별은 6등급 별보다 약 100배 더 밝습니다." },
+                { q: "별을 10pc 거리로 옮기면 겉보기 등급은 사라지나요?", a: "아니요, 10pc 지점에서의 '겉보기 등급' 자체가 곧 '절대 등급'으로 정의되는 것입니다. 모든 별을 같은 출발선(10pc)에 세우고 밝기를 재는 것이 절대 등급의 원리입니다." },
+                { q: "m - M 값이 클수록 별은 우리에게 가까운 건가요?", a: "틀렸습니다! m - M 값이 클수록(양수일수록) 별은 10pc보다 훨씬 멀리 있다는 뜻입니다. 10pc보다 가까우면 이 값은 음수(-)가 됩니다." }
+            ],
             init() { document.getElementById('lab3-d-slider').oninput = () => this.update(); this.update(); },
             update() {
                 const d = parseInt(document.getElementById('lab3-d-slider').value);
                 const M = 4.8;
                 let m = (d === 10) ? M : M + 5 * Math.log10(d) - 5;
-                let diff = m - M;
                 document.getElementById('lab3-d-val').innerText = d.toFixed(1) + ' pc';
                 document.getElementById('lab3-m-val').innerText = m.toFixed(2);
-                document.getElementById('lab3-diff-val').innerText = (diff >= 0 ? '+' : '') + diff.toFixed(2);
-                const starY = 250 - (15 * d);
-                document.getElementById('lab3-star-group').setAttribute('transform', `translate(200, ${Math.max(20, starY)})`);
-                document.getElementById('lab3-star-body').setAttribute('r', 12);
+                document.getElementById('lab3-diff-val').innerText = (m-M >= 0 ? '+' : '') + (m-M).toFixed(2);
+                document.getElementById('lab3-star-group').setAttribute('transform', `translate(200, ${Math.max(20, 250 - 15 * d)})`);
                 const obsStar = document.getElementById('lab3-observer-star');
                 const obsText = document.getElementById('lab3-observer-text');
                 const ratio = 10 / d;
-                const glowIntensity = Math.max(2, 50 * ratio);
-                const starScale = Math.min(3, Math.max(0.3, ratio * 1.2));
-                obsStar.style.transform = `scale(${starScale})`;
-                obsStar.style.boxShadow = `0 0 ${glowIntensity}px ${glowIntensity/3}px rgba(255, 255, 255, 0.9)`;
+                const glow = Math.max(2, 50 * ratio);
+                obsStar.style.transform = `scale(${Math.min(3, Math.max(0.3, ratio * 1.2))})`;
+                obsStar.style.boxShadow = `0 0 ${glow}px ${glow/3}px white`;
                 obsStar.style.opacity = Math.min(1, 0.2 + ratio);
                 if (d < 10) obsText.innerText = "매우 밝음 (m < M)";
                 else if (d > 30) obsText.innerText = "희미함 (m > M)";
                 else if (d === 10) obsText.innerText = "기준 밝기 (m = M)";
                 else obsText.innerText = "어두워짐 (m > M)";
                 const conc = document.getElementById('lab3-conclusion');
-                if (d < 10) {
-                    conc.innerHTML = "★ 10 pc보다 가까움 ★<br>겉보기 등급(m) < 절대 등급(M)";
-                    conc.className = "absolute bottom-6 left-6 right-6 p-4 rounded-xl text-center font-black text-sm bg-blue-900/40 text-blue-300 border border-blue-500/30 shadow-lg";
-                } else if (d > 10) {
-                    conc.innerHTML = "★ 10 pc보다 멀음 ★<br>겉보기 등급(m) > 절대 등급(M)";
-                    conc.className = "absolute bottom-6 left-6 right-6 p-4 rounded-xl text-center font-black text-sm bg-red-900/40 text-red-300 border border-red-500/30 shadow-lg";
-                } else {
-                    conc.innerHTML = "★ 기준 거리 10 pc 지점 ★";
-                    conc.className = "absolute bottom-6 left-6 right-6 p-4 rounded-xl text-center font-black text-sm bg-emerald-900/40 text-emerald-300 border border-emerald-500/30 shadow-xl";
-                }
+                if (d < 10) { conc.innerHTML = "★ 10 pc보다 가까움 ★<br>겉보기 등급(m) < 절대 등급(M)"; conc.className = "absolute bottom-6 left-6 right-6 p-4 rounded-xl text-center font-black text-sm bg-blue-900/40 text-blue-300 border border-blue-500/30"; }
+                else if (d > 10) { conc.innerHTML = "★ 10 pc보다 멀음 ★<br>겉보기 등급(m) > 절대 등급(M)"; conc.className = "absolute bottom-6 left-6 right-6 p-4 rounded-xl text-center font-black text-sm bg-red-900/40 text-red-300 border border-red-500/30"; }
+                else { conc.innerHTML = "★ 기준 거리 10 pc 지점 (m = M) ★"; conc.className = "absolute bottom-6 left-6 right-6 p-4 rounded-xl text-center font-black text-sm bg-emerald-900/40 text-emerald-300 border border-emerald-500/30"; }
             }
         };
 
         const App = {
-            init() { Lab1.init(); Lab2.init(); Lab3.init(); },
+            init() { Lab1.init(); Lab2.init(); Lab3.init(); this.updateFAQ('temp'); },
             switchTab(id) {
                 document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
                 document.getElementById('view-' + id).classList.remove('hidden');
-                document.querySelectorAll('nav button').forEach(b => {
-                    b.classList.remove('tab-active', 'text-white');
-                    b.classList.add('text-slate-400');
-                });
+                document.querySelectorAll('nav button').forEach(b => { b.classList.remove('tab-active', 'text-white'); b.classList.add('text-slate-400'); });
                 document.getElementById('btn-' + id).classList.add('tab-active', 'text-white');
+                this.updateFAQ(id);
             },
-            openSet() { document.getElementById('modal-set').style.display='flex'; },
-            closeSet() { document.getElementById('modal-set').style.display='none'; },
-            saveKey() { localStorage.setItem('gemini_key', document.getElementById('api-key-input').value); this.closeSet(); },
-            async askAI() {
-                const key = localStorage.getItem('gemini_key');
-                if(!key) { this.openSet(); return; }
-                const q = document.getElementById('ai-q').value;
-                const btn = document.getElementById('ai-btn');
-                const out = document.getElementById('ai-a');
-                btn.innerText = "분석 중...";
-                out.classList.remove('hidden'); out.innerText = "데이터 분석 중...";
-                try {
-                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`, {
-                        method: 'POST', headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({ contents: [{ parts: [{ text: `온도 ${document.getElementById('lab1-t-slider').value}K, 거리 ${document.getElementById('lab3-d-slider').value}pc 환경 질문: ${q}` }] }] })
-                    });
-                    const data = await res.json();
-                    out.innerHTML = data.candidates[0].content.parts[0].text.replace(/\n/g, '<br>');
-                } catch (e) { out.innerText = "오류 발생! 키를 확인하세요."; }
-                finally { btn.innerText = "분석 시작"; }
+            updateFAQ(id) {
+                const faqs = (id === 'temp') ? Lab1.faqs : (id === 'parallax') ? Lab2.faqs : Lab3.faqs;
+                const container = document.getElementById('faq-container');
+                container.innerHTML = faqs.map(item => `
+                    <div class="faq-item">
+                        <p class="faq-q"><i class="fas fa-question-circle mr-2 mt-1"></i> ${item.q}</p>
+                        <p class="faq-a">${item.a}</p>
+                    </div>
+                `).join('');
             }
         };
         App.init();
