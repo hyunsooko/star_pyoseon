@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>별의 비밀 사고 실험실: 통합본</title>
+    <title>별의 비밀 사고 실험실: 최종 통합본</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/dist/css/all.min.css">
     <style>
@@ -12,7 +12,7 @@
         .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
         .tab-active { background: #38bdf8; color: #0f172a; font-weight: bold; transform: scale(1.05); }
         
-        /* 온도 슬라이더 */
+        /* 1. 온도 슬라이더 */
         #t-slider {
             -webkit-appearance: none; width: 100%; height: 12px; border-radius: 10px; outline: none;
             background: linear-gradient(to right, #ff4d4d, #ffa347, #fff48a, #ffffff, #99bbff, #4d88ff);
@@ -22,22 +22,31 @@
         /* 별 효과 */
         .star-glow { box-shadow: 0 0 60px var(--star-color), 0 0 120px var(--star-color); border-radius: 50%; transition: all 0.3s ease; }
         
-        /* 등급 실험실 전용 */
-        .distance-line { border-left: 2px dashed rgba(255, 255, 255, 0.3); height: 100%; position: absolute; top: 0; left: 50%; }
-        .moving-star { transition: left 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        /* 3. 등급 실험실: 10pc 궤도 및 지구 시각화 */
+        .arc-10pc {
+            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+            width: 300px; height: 300px; border: 2px solid #fde047; border-radius: 50%;
+            clip-path: inset(0 0 50% 0); /* 반원 모양 */
+            pointer-events: none;
+        }
+        .earth-fixed {
+            position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+            z-index: 30;
+        }
+        .table-row { border-bottom: 1px solid rgba(255,255,255,0.05); }
     </style>
 </head>
 <body class="min-h-screen pb-12">
 
     <header class="p-6 max-w-6xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-6">
         <div>
-            <h1 class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-emerald-400 to-red-400 uppercase tracking-tighter">Star Secrets Lab</h1>
+            <h1 class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-emerald-400 to-red-400 uppercase tracking-tighter italic">Star Secrets Lab</h1>
             <p class="text-slate-400 text-sm font-medium">온도 · 시차 · 밝기 통합 사고 실험실</p>
         </div>
         <nav class="flex space-x-2 glass p-1 rounded-2xl">
             <button onclick="showTab('temp')" id="btn-temp" class="tab-active px-5 py-2 rounded-xl text-xs transition">1. 온도와 색깔</button>
             <button onclick="showTab('dist')" id="btn-dist" class="px-5 py-2 rounded-xl text-xs transition text-slate-400">2. 연주시차와 공전</button>
-            <button onclick="showTab('mag')" id="btn-mag" class="px-5 py-2 rounded-xl text-xs transition text-slate-400">3. 별의 거리와 등급</button>
+            <button onclick="showTab('mag')" id="btn-mag" class="px-5 py-2 rounded-xl text-xs transition text-slate-400">3. 별의 등급과 거리</button>
         </nav>
         <button onclick="openSet()" class="bg-slate-800 p-3 rounded-full text-yellow-400 hover:rotate-90 transition-transform duration-500"><i class="fas fa-cog"></i></button>
     </header>
@@ -45,16 +54,16 @@
     <main class="max-w-6xl mx-auto px-4">
         
         <!-- 1. 별의 온도 실험실 (유지) -->
-        <section id="sec-temp" class="grid grid-cols-1 lg:grid-cols-2 gap-8 animate-in fade-in duration-500">
+        <section id="sec-temp" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div class="glass p-8 rounded-[2rem] space-y-8">
                 <h2 class="text-xl font-bold text-red-400 flex items-center gap-2"><i class="fas fa-temperature-high"></i> 온도와 색깔 (빈의 법칙)</h2>
                 <div class="space-y-4">
-                    <div class="flex justify-between items-end"><span class="text-slate-500 font-bold text-xs">Surface Temperature</span><span id="t-val" class="text-5xl font-black text-white italic">6,000 K</span></div>
+                    <div class="flex justify-between items-end"><span class="text-slate-500 font-bold text-xs uppercase">Surface Temperature</span><span id="t-val" class="text-5xl font-black text-white italic">6,000 K</span></div>
                     <input type="range" id="t-slider" min="3000" max="30000" step="100" value="6000">
                     <div class="flex justify-between text-[10px] font-bold text-slate-500 uppercase px-1"><span>3,000K (적색)</span><span class="text-white">10,000K (백색)</span><span>30,000K (청색)</span></div>
                 </div>
                 <div class="pt-6 border-t border-white/5">
-                    <h3 class="text-xs font-bold text-slate-500 mb-4 uppercase tracking-widest">대표적인 별</h3>
+                    <h3 class="text-xs font-bold text-slate-500 mb-4 uppercase">이 온도의 대표적인 별</h3>
                     <div id="temp-star-list" class="flex flex-wrap gap-2 font-bold"></div>
                 </div>
             </div>
@@ -70,7 +79,7 @@
                 <h2 class="text-xl font-bold text-emerald-400 flex items-center gap-2"><i class="fas fa-sync-alt"></i> 연주시차와 지구 공전</h2>
                 <div class="space-y-6">
                     <div>
-                        <div class="flex justify-between font-mono mb-2"><span class="text-slate-500 text-xs">별까지의 거리 (d)</span><span id="d-val" class="text-emerald-400 font-bold text-xl">1.30 pc</span></div>
+                        <div class="flex justify-between font-mono mb-2"><span class="text-slate-500 text-xs uppercase">Distance (d)</span><span id="d-val" class="text-emerald-400 font-bold text-xl">1.30 pc</span></div>
                         <input type="range" id="d-slider" min="1" max="10" step="0.1" value="1.3" class="w-full accent-emerald-500">
                     </div>
                     <div class="bg-black/30 p-5 rounded-2xl border border-emerald-500/20 text-center">
@@ -91,67 +100,75 @@
             </div>
         </section>
 
-        <!-- 3. 별의 거리와 등급 (교과서 도식 기반 재설계) -->
+        <!-- 3. 별의 등급과 거리 (교과서 도식 기반 재설계) -->
         <section id="sec-mag" class="hidden grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div class="glass p-8 rounded-[2rem] space-y-8">
+            <div class="glass p-8 rounded-[2rem] space-y-6">
                 <div>
-                    <h2 class="text-xl font-bold text-yellow-400 flex items-center gap-2"><i class="fas fa-sun"></i> 별의 거리와 등급 비교</h2>
-                    <p class="text-xs text-slate-400 mt-2">별을 움직여보세요. 10pc 거리에 있을 때가 <b>절대 등급</b>입니다.</p>
-                </div>
-
-                <!-- 별 선택 스위치 -->
-                <div class="flex gap-2">
-                    <button onclick="selectMagStar('sirius')" id="sirius-btn" class="flex-1 py-2 rounded-xl bg-blue-600 font-bold text-xs shadow-lg transition-all">시리우스 (M=1.4)</button>
-                    <button onclick="selectMagStar('betelgeuse')" id="betel-btn" class="flex-1 py-2 rounded-xl bg-slate-800 font-bold text-xs shadow-lg transition-all">베텔게우스 (M=-5.9)</button>
+                    <h2 class="text-xl font-bold text-yellow-400 flex items-center gap-2"><i class="fas fa-chart-line"></i> 등급과 거리 사고 실험</h2>
+                    <p class="text-xs text-slate-400 mt-2">별을 움직여보세요. <b>절대 등급</b>은 10pc 거리에서의 밝기로 고정됩니다.</p>
                 </div>
 
                 <div class="space-y-4">
-                    <div class="flex justify-between font-mono"><span class="text-slate-500 text-xs uppercase">Distance (d)</span><span id="mag-d-val" class="text-yellow-400 font-black text-3xl">10.0 pc</span></div>
-                    <input type="range" id="mag-d-slider" min="1.3" max="100" step="0.1" value="10" class="w-full accent-yellow-500">
+                    <div class="flex justify-between font-mono"><span class="text-slate-500 text-xs">거리 조절 (d)</span><span id="mag-d-val" class="text-yellow-400 font-black text-3xl">10.0 pc</span></div>
+                    <input type="range" id="mag-d-slider" min="1" max="100" step="0.1" value="10" class="w-full accent-yellow-500">
                 </div>
 
-                <div class="bg-black/40 p-6 rounded-[2rem] border border-white/5 space-y-4">
-                    <div class="flex justify-between items-center text-sm">
-                        <span class="text-slate-400">절대 등급 (M) <span class="text-[10px] block font-normal">(10pc 거리에서의 밝기)</span></span>
-                        <span id="val-abs-m" class="text-blue-400 font-black text-xl">1.4</span>
-                    </div>
-                    <div class="flex justify-between items-center text-sm border-t border-white/10 pt-4">
-                        <span class="text-white font-bold">겉보기 등급 (m) <span class="text-[10px] block font-normal text-slate-400">(현재 거리에서의 밝기)</span></span>
-                        <span id="val-app-m" class="text-yellow-400 font-black text-4xl italic">1.40</span>
-                    </div>
+                <!-- 실시간 데이터 표 -->
+                <div class="bg-black/40 rounded-2xl overflow-hidden border border-white/10">
+                    <table class="w-full text-xs">
+                        <thead>
+                            <tr class="bg-white/5 text-slate-400 uppercase">
+                                <th class="p-3 text-left">측정 항목</th>
+                                <th class="p-3 text-right">수치 / 결과</th>
+                            </tr>
+                        </thead>
+                        <tbody class="font-mono">
+                            <tr class="table-row">
+                                <td class="p-3 text-slate-400 italic">절대 등급 (M)</td>
+                                <td class="p-3 text-right text-blue-400 font-bold">4.8 (고정)</td>
+                            </tr>
+                            <tr class="table-row">
+                                <td class="p-3 text-slate-400 italic">겉보기 등급 (m)</td>
+                                <td id="table-app-m" class="p-3 text-right text-yellow-400 font-bold">4.80</td>
+                            </tr>
+                            <tr class="bg-white/5">
+                                <td class="p-3 text-white font-bold">등급 차 (m - M)</td>
+                                <td id="table-diff" class="p-3 text-right text-white font-black">0.00</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
+
+                <div id="mag-conclusion" class="p-4 rounded-xl text-center text-xs font-bold leading-relaxed"></div>
             </div>
 
-            <!-- 시각화 패널 -->
-            <div class="glass rounded-[2rem] min-h-[450px] relative overflow-hidden bg-slate-950 flex flex-col items-center p-8">
-                <div class="w-full h-full relative border-b border-slate-800 mt-20">
-                    <!-- 10pc 기준선 -->
-                    <div class="absolute left-1/2 top-0 bottom-0 border-l-2 border-dashed border-white/20">
-                        <span class="absolute -top-10 left-1/2 -translate-x-1/2 text-[10px] font-black text-white bg-blue-600 px-3 py-1 rounded-full whitespace-nowrap shadow-xl">기준 거리 10 pc (절대 등급 위치)</span>
+            <!-- 시각화 패널 (교과서 도식) -->
+            <div class="glass rounded-[2rem] min-h-[450px] relative overflow-hidden bg-slate-950 flex flex-col items-center">
+                
+                <div class="w-full h-full relative">
+                    <!-- 10pc 궤도 아치 -->
+                    <div class="arc-10pc"></div>
+                    <div class="absolute bottom-[170px] left-1/2 -translate-x-1/2 text-[10px] font-black text-yellow-400 bg-black/60 px-2 py-1 rounded border border-yellow-500/30">10 pc</div>
+
+                    <!-- 지구 -->
+                    <div class="earth-fixed text-center">
+                        <i class="fas fa-globe-asia text-3xl text-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.5)]"></i>
+                        <p class="text-[10px] font-bold text-blue-400 mt-2">관측자 (지구)</p>
                     </div>
 
-                    <!-- 지구 위치 -->
-                    <div class="absolute left-0 bottom-[-10px] flex flex-col items-center">
-                        <i class="fas fa-globe text-blue-400 text-2xl"></i>
-                        <span class="text-[10px] mt-1 font-bold text-blue-400">지구</span>
+                    <!-- 실제 별 (움직임) -->
+                    <div id="mag-star-moving" class="absolute left-1/2 -translate-x-1/2 transition-all duration-300 flex flex-col items-center" style="bottom: 150px;">
+                        <div id="mag-star-body" class="w-10 h-10 bg-white rounded-full"></div>
+                        <p class="text-[10px] font-bold text-white mt-2 bg-black/50 px-2 py-1 rounded italic shadow-lg">가상의 별 (m)</p>
                     </div>
 
-                    <!-- 움직이는 별 (겉보기 등급용) -->
-                    <div id="vis-moving-star" class="absolute top-1/2 -translate-y-1/2 moving-star flex flex-col items-center z-20">
-                        <div id="vis-star-body" class="w-12 h-12 bg-yellow-200 rounded-full shadow-[0_0_30px_#fde047]"></div>
-                        <span id="vis-star-name" class="text-[10px] font-bold mt-2 text-white bg-black/50 px-2 py-0.5 rounded whitespace-nowrap italic">겉보기 등급(m)</span>
-                    </div>
-
-                    <!-- 고정된 별 (절대 등급용) -->
-                    <div class="absolute left-1/2 top-1/2 -translate-y-1/2 -translate-x-1/2 flex flex-col items-center opacity-40 grayscale-[0.5]">
-                        <div id="vis-star-fixed" class="w-12 h-12 border-2 border-blue-400 bg-transparent rounded-full"></div>
-                        <span class="text-[10px] font-bold mt-2 text-blue-400 whitespace-nowrap italic">절대 등급(M)</span>
+                    <!-- 절대등급 고정 고스트 (10pc 지점) -->
+                    <div class="absolute left-1/2 -translate-x-1/2 flex flex-col items-center opacity-30" style="bottom: 170px;">
+                        <div class="w-10 h-10 border-2 border-dashed border-blue-400 rounded-full"></div>
+                        <p class="text-[9px] font-bold text-blue-400 mt-1 uppercase italic">M 지점</p>
                     </div>
                 </div>
 
-                <div id="mag-conclusion" class="mt-auto w-full p-6 rounded-2xl text-center font-bold text-sm leading-relaxed transition-all duration-500">
-                    <!-- 결론 메시지 자동 생성 -->
-                </div>
             </div>
         </section>
 
@@ -159,10 +176,10 @@
         <div class="mt-10 glass p-8 rounded-[2rem] border-purple-500/20">
             <h3 class="font-black text-xl mb-6 flex items-center gap-3"><i class="fas fa-robot text-purple-400"></i> AI 사고 실험실</h3>
             <div class="flex flex-col md:flex-row gap-4">
-                <textarea id="ai-q" class="flex-1 bg-black/40 border border-white/10 rounded-2xl p-5 text-sm focus:ring-2 focus:ring-purple-500 outline-none transition" rows="2" placeholder="가설을 세워보세요! 예: 별을 10pc보다 10배 멀리 보내면 겉보기 등급은 어떻게 변할까?"></textarea>
+                <textarea id="ai-q" class="flex-1 bg-black/40 border border-white/10 rounded-2xl p-5 text-sm outline-none" rows="2" placeholder="가설을 세워보세요! 예: 별이 10pc보다 2배 멀어지면 겉보기 등급과 절대 등급 중 무엇이 더 커질까?"></textarea>
                 <button onclick="askAI()" id="ai-btn" class="bg-gradient-to-br from-purple-600 to-indigo-600 px-8 py-4 rounded-2xl font-black hover:scale-105 active:scale-95 transition-all shrink-0">분석 시작</button>
             </div>
-            <div id="ai-a" class="hidden mt-6 p-6 bg-black/60 rounded-2xl text-sm leading-relaxed text-slate-300 border border-white/5"></div>
+            <div id="ai-a" class="hidden mt-6 p-6 bg-black/60 rounded-2xl text-sm text-slate-300 border border-white/5"></div>
         </div>
     </main>
 
@@ -214,7 +231,6 @@
             const ex = 80 + 30 * Math.cos(orbitAngle), ey = 200 + 80 * Math.sin(orbitAngle);
             const sx = 80 + d * 50, sy = 200;
             const bx = 550, by = ey + (sy - ey) * (bx - ex) / (sx - ex);
-            
             document.getElementById('earth-sim').setAttribute('cx', ex);
             document.getElementById('earth-sim').setAttribute('cy', ey);
             document.getElementById('star-sim').setAttribute('cx', sx);
@@ -228,64 +244,43 @@
             requestAnimationFrame(animateOrbit);
         }
 
-        function setDist(v, name) {
-            document.getElementById('d-slider').value = v;
-            updateDist();
-        }
-
-        // --- 3. 별의 등급 실험실 (선생님 요청 반영 재설계) ---
-        const magStars = {
-            sirius: { name: '시리우스', M: 1.4, hex: '#ffffff' },
-            betelgeuse: { name: '베텔게우스', M: -5.9, hex: '#ff4d4d' }
-        };
-        let currentMagStar = 'sirius';
-
-        function selectMagStar(key) {
-            currentMagStar = key;
-            document.getElementById('sirius-btn').className = key === 'sirius' ? 'flex-1 py-2 rounded-xl bg-blue-600 font-bold text-xs shadow-lg' : 'flex-1 py-2 rounded-xl bg-slate-800 font-bold text-xs';
-            document.getElementById('betel-btn').className = key === 'betelgeuse' ? 'flex-1 py-2 rounded-xl bg-red-600 font-bold text-xs shadow-lg' : 'flex-1 py-2 rounded-xl bg-slate-800 font-bold text-xs';
-            updateMagnitude();
-        }
-
+        // --- 3. 별의 등급 (교과서 도식 기반) ---
         function updateMagnitude() {
             const d = parseFloat(document.getElementById('mag-d-slider').value);
-            const M = magStars[currentMagStar].M;
-            // 거리 지수 공식: m = M + 5log10(d) - 5
-            const m = M + 5 * Math.log10(d) - 5;
-            
+            const ABS_M = 4.8; // 절대 등급 고정 (태양 기준 가상의 별)
+            const APP_m = ABS_M + 5 * Math.log10(d) - 5;
+            const diff = APP_m - ABS_M;
+
+            // UI 업데이트
             document.getElementById('mag-d-val').innerText = d.toFixed(1) + ' pc';
-            document.getElementById('val-abs-m').innerText = M;
-            document.getElementById('val-app-m').innerText = m.toFixed(2);
-            
-            // 시각화 업데이트
-            const starBody = document.getElementById('vis-star-body');
-            const movingStar = document.getElementById('vis-moving-star');
+            document.getElementById('table-app-m').innerText = APP_m.toFixed(2);
+            document.getElementById('table-diff').innerText = (diff >= 0 ? '+' : '') + diff.toFixed(2);
+
+            // 시각화 위치 조절 (지구가 bottom이므로 위쪽으로 거리 계산)
+            // 10pc가 bottom에서 170px 지점
+            const basePos = 20; 
+            const pixelPos = basePos + (Math.log10(d) / Math.log10(100)) * 300; 
+            const starMoving = document.getElementById('mag-star-moving');
+            starMoving.style.bottom = pixelPos + 'px';
+
+            // 밝기 시각화
+            const starBody = document.getElementById('mag-star-body');
+            const brightness = Math.max(0.2, 1 - (APP_m / 15));
+            starBody.style.transform = `scale(${1 + brightness})`;
+            starBody.style.boxShadow = `0 0 ${30 * brightness + 5}px rgba(255,255,255,0.8)`;
+            starBody.style.backgroundColor = `rgba(255, 255, ${200 + 55 * brightness}, 1)`;
+
+            // 결론 메시지 및 색상
             const conclusion = document.getElementById('mag-conclusion');
-            
-            // 거리 시각화 (log 스케일 느낌으로 변환하여 화면 배치)
-            const leftPos = (Math.log10(d) / Math.log10(100)) * 100;
-            movingStar.style.left = `calc(${leftPos}% - 24px)`;
-            
-            // 밝기에 따른 시각 효과 (m이 작을수록 밝음)
-            const brightness = Math.max(0.1, 1 - (m + 10) / 25);
-            starBody.style.backgroundColor = magStars[currentMagStar].hex;
-            starBody.style.boxShadow = `0 0 ${40 * brightness + 10}px ${magStars[currentMagStar].hex}`;
-            starBody.style.transform = `scale(${0.5 + brightness})`;
-            
-            // 고정 별(M) 업데이트
-            const starFixed = document.getElementById('vis-star-fixed');
-            starFixed.style.borderColor = magStars[currentMagStar].hex;
-            
-            // 결론 메시지
             if (d < 10) {
-                conclusion.innerHTML = `<span class="text-blue-400">★ 10 pc보다 가까움 ★</span><br>겉보기 등급(m)이 절대 등급(M)보다 <span class="underline">작음</span> (더 밝게 보임)`;
-                conclusion.className = "mt-auto w-full p-6 rounded-2xl text-center font-bold text-sm bg-blue-900/20 border border-blue-500/30";
+                conclusion.innerHTML = "<span class='text-blue-400 uppercase'>[ 10 pc보다 가까움 ]</span><br>겉보기 등급(m) < 절대 등급(M)<br>m - M < 0";
+                conclusion.className = "p-4 rounded-xl text-center text-xs font-bold bg-blue-900/20 border border-blue-500/30 text-blue-200";
             } else if (d > 10) {
-                conclusion.innerHTML = `<span class="text-red-400">★ 10 pc보다 멀음 ★</span><br>겉보기 등급(m)이 절대 등급(M)보다 <span class="underline">큼</span> (더 어둡게 보임)`;
-                conclusion.className = "mt-auto w-full p-6 rounded-2xl text-center font-bold text-sm bg-red-900/20 border border-red-500/30";
+                conclusion.innerHTML = "<span class='text-red-400 uppercase'>[ 10 pc보다 멀음 ]</span><br>겉보기 등급(m) > 절대 등급(M)<br>m - M > 0";
+                conclusion.className = "p-4 rounded-xl text-center text-xs font-bold bg-red-900/20 border border-red-500/30 text-red-200";
             } else {
-                conclusion.innerHTML = `<span class="text-green-400">★ 10 pc 기준 거리에 있음 ★</span><br>겉보기 등급(m)과 절대 등급(M)이 <span class="underline">서로 같음</span>`;
-                conclusion.className = "mt-auto w-full p-6 rounded-2xl text-center font-bold text-sm bg-emerald-900/20 border border-emerald-500/30";
+                conclusion.innerHTML = "<span class='text-emerald-400 uppercase'>[ 기준 거리 10 pc ]</span><br>겉보기 등급(m) = 절대 등급(M)<br>m - M = 0";
+                conclusion.className = "p-4 rounded-xl text-center text-xs font-bold bg-emerald-900/20 border border-emerald-500/30 text-emerald-200";
             }
         }
 
@@ -309,12 +304,11 @@
             if(!q) return;
             btn.innerText = "분석 중...";
             ans.classList.remove('hidden');
-            ans.innerHTML = "데이터를 분석 중입니다...";
-            const prompt = `현재 별(${currentMagStar})의 설정: 온도 ${document.getElementById('t-slider').value}K, 거리 ${document.getElementById('mag-d-slider').value}pc, 겉보기등급 ${document.getElementById('val-app-m').innerText}, 절대등급 ${document.getElementById('val-abs-m').innerText}. 질문: ${q}`;
+            ans.innerHTML = "데이터 분석 중...";
             try {
                 const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`, {
                     method: 'POST', headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                    body: JSON.stringify({ contents: [{ parts: [{ text: `현재 별의 온도 ${document.getElementById('t-slider').value}K, 관측 거리 ${document.getElementById('mag-d-slider').value}pc 환경입니다. 질문: ${q}` }] }] })
                 });
                 const data = await res.json();
                 ans.innerHTML = data.candidates[0].content.parts[0].text.replace(/\n/g, '<br>');
