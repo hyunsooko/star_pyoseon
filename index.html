@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>별의 비밀: 사고 실험실</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/dist/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;800&display=swap');
+        
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background-color: #0f172a;
+            color: #f1f5f9;
+            overflow-x: hidden;
+        }
+
+        .star-container {
+            perspective: 1000px;
+            background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+        }
+
+        #star {
+            transition: all 0.3s ease-out;
+            border-radius: 50%;
+            filter: blur(2px);
+            box-shadow: 0 0 40px var(--star-color), 0 0 80px var(--star-color);
+        }
+
+        .slider-thumb::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #38bdf8;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
+        }
+        .twinkle { animation: twinkle 3s infinite ease-in-out; }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+
+    <!-- Header -->
+    <header class="max-w-6xl mx-auto flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
+                별의 비밀: 색깔, 시차, 그리고 밝기
+            </h1>
+            <p class="text-slate-400 text-sm mt-1">중·고등 과학 사고 실험 시뮬레이션</p>
+        </div>
+        <button onclick="openSettings()" class="p-2 bg-slate-800 hover:bg-slate-700 rounded-full transition">
+            <i class="fas fa-cog text-xl"></i>
+        </button>
+    </header>
+
+    <main class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Left: Controls -->
+        <div class="lg:col-span-1 space-y-6">
+            <div class="glass-card p-6 rounded-2xl">
+                <h2 class="text-lg font-bold mb-6 flex items-center">
+                    <i class="fas fa-sliders-h mr-2 text-blue-400"></i> 환경 설정
+                </h2>
+
+                <!-- Temperature Slider -->
+                <div class="mb-8">
+                    <div class="flex justify-between mb-2">
+                        <label class="text-sm font-semibold">표면 온도 (T)</label>
+                        <span id="temp-val" class="text-blue-400 font-mono">6,000 K</span>
+                    </div>
+                    <input type="range" id="temp-slider" min="3000" max="30000" step="100" value="6000" 
+                           class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer slider-thumb">
+                    <div class="flex justify-between text-[10px] mt-1 text-slate-500">
+                        <span>3,000K (적색)</span>
+                        <span>30,000K (청색)</span>
+                    </div>
+                </div>
+
+                <!-- Parallax Slider -->
+                <div class="mb-8">
+                    <div class="flex justify-between mb-2">
+                        <label class="text-sm font-semibold">연주시차 (p")</label>
+                        <span id="parallax-val" class="text-blue-400 font-mono">0.10"</span>
+                    </div>
+                    <input type="range" id="parallax-slider" min="0.01" max="1.0" step="0.01" value="0.1" 
+                           class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer slider-thumb">
+                    <div class="flex justify-between text-[10px] mt-1 text-slate-500">
+                        <span>0.01" (멀다)</span>
+                        <span>1.0" (가깝다)</span>
+                    </div>
+                </div>
+
+                <!-- Star Type -->
+                <div class="mb-2">
+                    <label class="text-sm font-semibold block mb-3">별의 종류 (광도 계급)</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button onclick="setStarType('main')" id="btn-main" class="type-btn px-3 py-2 rounded-lg bg-blue-600 text-xs font-bold transition">주계열성</button>
+                        <button onclick="setStarType('giant')" id="btn-giant" class="type-btn px-3 py-2 rounded-lg bg-slate-700 text-xs font-bold transition">거성</button>
+                        <button onclick="setStarType('super')" id="btn-super" class="type-btn px-3 py-2 rounded-lg bg-slate-700 text-xs font-bold transition">초거성</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard -->
+            <div class="glass-card p-6 rounded-2xl grid grid-cols-2 gap-4">
+                <div class="text-center p-3 bg-slate-800/50 rounded-xl">
+                    <p class="text-[10px] text-slate-400 uppercase">별의 색깔</p>
+                    <p id="dash-color" class="font-bold text-sm">노란색</p>
+                </div>
+                <div class="text-center p-3 bg-slate-800/50 rounded-xl">
+                    <p class="text-[10px] text-slate-400 uppercase">거리 (pc)</p>
+                    <p id="dash-dist-pc" class="font-bold text-sm">10.00 pc</p>
+                </div>
+                <div class="text-center p-3 bg-slate-800/50 rounded-xl">
+                    <p class="text-[10px] text-slate-400 uppercase">거리 (ly)</p>
+                    <p id="dash-dist-ly" class="font-bold text-sm">32.62 ly</p>
+                </div>
+                <div class="text-center p-3 bg-slate-800/50 rounded-xl border border-blue-500/30">
+                    <p class="text-[10px] text-blue-400 uppercase">절대 등급 (M)</p>
+                    <p id="dash-abs-mag" class="font-bold text-sm">4.8</p>
+                </div>
+                <div class="text-center p-3 bg-slate-800/50 rounded-xl border border-purple-500/30 col-span-2">
+                    <p class="text-[10px] text-purple-400 uppercase">겉보기 등급 (m)</p>
+                    <p id="dash-app-mag" class="font-bold text-xl">4.8</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Visualization & AI -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Star Canvas -->
+            <div class="star-container h-[400px] rounded-2xl flex flex-col items-center justify-center relative overflow-hidden">
+                <div id="star" class="twinkle"></div>
+                <div class="absolute bottom-4 left-6 text-slate-500 text-xs italic">
+                    * 시각적 크기는 밝기와 거리를 종합하여 표현됨
+                </div>
+            </div>
+
+            <!-- AI Thought Experiment -->
+            <div class="glass-card p-6 rounded-2xl">
+                <h2 class="text-lg font-bold mb-4 flex items-center">
+                    <i class="fas fa-brain mr-2 text-purple-400"></i> 사고 실험실 & AI 피드백
+                </h2>
+                <div class="flex flex-col space-y-4">
+                    <textarea id="user-hypothesis" rows="3" 
+                        class="w-full bg-slate-900/50 border border-slate-700 rounded-xl p-4 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 transition"
+                        placeholder="예: 별의 온도가 2배가 되면 색깔은 어떻게 변하고, 거리가 10배 멀어지면 겉보기 등급은 어떻게 변할까?"></textarea>
+                    <button onclick="askAI()" id="ai-btn"
+                        class="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 rounded-xl font-bold transition flex items-center justify-center">
+                        <i class="fas fa-rocket mr-2"></i> AI 천문학자 분석 받기
+                    </button>
+                    <div id="ai-response" class="hidden p-4 bg-slate-900/80 border border-purple-500/30 rounded-xl text-sm leading-relaxed text-slate-300">
+                        <!-- AI Response will appear here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 p-4">
+        <div class="bg-slate-800 p-8 rounded-2xl w-full max-w-md">
+            <h3 class="text-xl font-bold mb-4">Gemini API 설정</h3>
+            <p class="text-sm text-slate-400 mb-4">AI 피드백 기능을 사용하려면 Google AI Studio에서 발급받은 API 키가 필요합니다.</p>
+            <input type="password" id="api-key-input" placeholder="Enter your Gemini API Key" 
+                   class="w-full bg-slate-900 border border-slate-700 p-3 rounded-lg mb-4 text-white">
+            <div class="flex space-x-2">
+                <button onclick="saveSettings()" class="flex-1 bg-blue-600 py-2 rounded-lg font-bold">저장</button>
+                <button onclick="closeSettings()" class="flex-1 bg-slate-700 py-2 rounded-lg">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let starType = 'main'; // main, giant, super
+        let absMag = 4.8;
+        let config = {
+            temp: 6000,
+            parallax: 0.1,
+            distancePc: 10,
+            appMag: 4.8,
+            colorName: '노란색',
+            colorHex: '#ffffff'
+        };
+
+        const starTypes = {
+            main: { name: '주계열성', m: 4.8 },
+            giant: { name: '거성', m: -0.5 },
+            super: { name: '초거성', m: -8.0 }
+        };
+
+        // DOM Elements
+        const tempSlider = document.getElementById('temp-slider');
+        const parallaxSlider = document.getElementById('parallax-slider');
+        const starEl = document.getElementById('star');
+        const aiResponse = document.getElementById('ai-response');
+
+        // Logic: Temperature to Color
+        function getStarColor(K) {
+            if (K < 3500) return { name: '적색', hex: '#ff3e3e' };
+            if (K < 5000) return { name: '주황색', hex: '#ff9d3f' };
+            if (K < 6500) return { name: '노란색', hex: '#fff5ad' };
+            if (K < 10000) return { name: '흰색', hex: '#ffffff' };
+            if (K < 20000) return { name: '청백색', hex: '#aaccff' };
+            return { name: '청색', hex: '#5599ff' };
+        }
+
+        // Logic: Calculate everything
+        function update() {
+            config.temp = parseInt(tempSlider.value);
+            config.parallax = parseFloat(parallaxSlider.value);
+            
+            // 1. Distance Calculation (d = 1/p)
+            config.distancePc = 1 / config.parallax;
+            const distanceLy = config.distancePc * 3.26156;
+
+            // 2. Magnitude Calculation (m - M = 5log d - 5)
+            absMag = starTypes[starType].m;
+            config.appMag = absMag + 5 * Math.log10(config.distancePc) - 5;
+
+            // 3. Color
+            const colorInfo = getStarColor(config.temp);
+            config.colorName = colorInfo.name;
+            config.colorHex = colorInfo.hex;
+
+            // Update UI
+            document.getElementById('temp-val').innerText = config.temp.toLocaleString() + ' K';
+            document.getElementById('parallax-val').innerText = config.parallax.toFixed(2) + '"';
+            
+            document.getElementById('dash-color').innerText = config.colorName;
+            document.getElementById('dash-color').style.color = config.colorHex;
+            document.getElementById('dash-dist-pc').innerText = config.distancePc.toFixed(2) + ' pc';
+            document.getElementById('dash-dist-ly').innerText = distanceLy.toFixed(2) + ' ly';
+            document.getElementById('dash-abs-mag').innerText = absMag.toFixed(1);
+            document.getElementById('dash-app-mag').innerText = config.appMag.toFixed(2);
+
+            // Update Visual Star
+            // Size based on magnitude and type (simplified visual)
+            const baseSize = starType === 'super' ? 120 : (starType === 'giant' ? 80 : 50);
+            // Magnitude affects visual intensity
+            const intensity = Math.max(0.2, (15 - config.appMag) / 10);
+            const finalSize = baseSize * intensity;
+            
+            starEl.style.width = finalSize + 'px';
+            starEl.style.height = finalSize + 'px';
+            starEl.style.setProperty('--star-color', config.colorHex);
+            starEl.style.backgroundColor = config.colorHex;
+            starEl.style.boxShadow = `0 0 ${finalSize/2}px ${config.colorHex}, 0 0 ${finalSize}px ${config.colorHex}88`;
+        }
+
+        function setStarType(type) {
+            starType = type;
+            document.querySelectorAll('.type-btn').forEach(btn => btn.classList.replace('bg-blue-600', 'bg-slate-700'));
+            document.getElementById('btn-' + type).classList.replace('bg-slate-700', 'bg-blue-600');
+            update();
+        }
+
+        // Gemini API Interaction
+        async function askAI() {
+            const apiKey = localStorage.getItem('gemini_api_key');
+            if (!apiKey) {
+                alert('먼저 우측 상단 설정에서 Gemini API 키를 입력해주세요.');
+                openSettings();
+                return;
+            }
+
+            const hypothesis = document.getElementById('user-hypothesis').value;
+            if (!hypothesis) {
+                alert('가설이나 질문을 입력해주세요.');
+                return;
+            }
+
+            const aiBtn = document.getElementById('ai-btn');
+            aiBtn.disabled = true;
+            aiBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> 분석 중...';
+            aiResponse.classList.remove('hidden');
+            aiResponse.innerText = "천문학자가 데이터를 분석하고 있습니다...";
+
+            const prompt = `
+            당신은 친절한 천문학자 선생님입니다. 
+            학생이 현재 시뮬레이션 설정값과 자신의 가설을 바탕으로 질문을 했습니다.
+            
+            [현재 시뮬레이션 설정]
+            - 별의 종류: ${starTypes[starType].name}
+            - 표면 온도: ${config.temp}K (색상: ${config.colorName})
+            - 연주시차: ${config.parallax}"
+            - 거리: ${config.distancePc.toFixed(2)}pc
+            - 절대 등급(M): ${absMag}
+            - 겉보기 등급(m): ${config.appMag.toFixed(2)}
+
+            [학생의 질문/가설]
+            "${hypothesis}"
+
+            위 내용을 바탕으로 과학적인 피드백을 제공하세요. 
+            1. 학생의 가설이 맞는지 과학적으로 설명해줄 것.
+            2. 거리와 밝기(역제곱 법칙), 혹은 온도와 색깔(빈의 변위 법칙)의 관계를 언급하며 중고등학생 수준에서 이해하기 쉽게 답변할 것.
+            3. 마지막에 응원의 한마디를 덧붙일 것.
+            `;
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }]
+                    })
+                });
+
+                const data = await response.json();
+                const text = data.candidates[0].content.parts[0].text;
+                aiResponse.innerHTML = text.replace(/\n/g, '<br>');
+            } catch (error) {
+                aiResponse.innerText = "오류가 발생했습니다. API 키를 확인하거나 나중에 다시 시도해주세요.";
+            } finally {
+                aiBtn.disabled = false;
+                aiBtn.innerHTML = '<i class="fas fa-rocket mr-2"></i> AI 천문학자 분석 받기';
+            }
+        }
+
+        // Modal Controls
+        function openSettings() {
+            document.getElementById('settings-modal').classList.replace('hidden', 'flex');
+            document.getElementById('api-key-input').value = localStorage.getItem('gemini_api_key') || '';
+        }
+
+        function closeSettings() {
+            document.getElementById('settings-modal').classList.replace('flex', 'hidden');
+        }
+
+        function saveSettings() {
+            const key = document.getElementById('api-key-input').value;
+            localStorage.setItem('gemini_api_key', key);
+            closeSettings();
+            alert('설정이 저장되었습니다.');
+        }
+
+        // Event Listeners
+        tempSlider.addEventListener('input', update);
+        parallaxSlider.addEventListener('input', update);
+
+        // Initial Load
+        update();
+    </script>
+</body>
+</html>
