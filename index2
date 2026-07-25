@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>별의 비밀 사고 실험실</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/dist/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;800&display=swap');
+        body { font-family: 'Pretendard', sans-serif; background-color: #020617; color: #f1f5f9; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
+        .tab-active { border-bottom: 3px solid #38bdf8; color: #38bdf8; }
+        
+        /* 별 효과 */
+        #star-visual {
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 50%;
+            filter: blur(1px);
+        }
+        .star-glow { box-shadow: 0 0 60px var(--glow-color), 0 0 120px var(--glow-color); }
+        
+        /* 연주시차 애니메이션용 */
+        .orbit { border: 1px dashed rgba(255,255,255,0.2); border-radius: 50%; position: absolute; }
+        .earth { width: 12px; height: 12px; background: #3b82f6; border-radius: 50%; position: absolute; }
+        
+        input[type=range] { -webkit-appearance: none; background: #1e293b; height: 8px; border-radius: 5px; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; background: #38bdf8; border-radius: 50%; cursor: pointer; }
+    </style>
+</head>
+<body class="min-h-screen pb-10">
+
+    <!-- Header & Nav -->
+    <header class="p-6 max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+        <h1 class="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
+            별의 비밀: 사고 실험실
+        </h1>
+        <nav class="flex space-x-6 text-sm font-bold text-slate-400">
+            <button onclick="switchTab('temp')" id="tab-temp" class="tab-active py-2 transition">1. 온도와 색깔</button>
+            <button onclick="switchTab('dist')" id="tab-dist" class="py-2 transition">2. 거리와 시차</button>
+            <button onclick="switchTab('mag')" id="tab-mag" class="py-2 transition">3. 밝기와 등급</button>
+        </nav>
+        <button onclick="openSettings()" class="text-slate-400 hover:text-white transition"><i class="fas fa-cog text-xl"></i></button>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4">
+        
+        <!-- Section 1: Temperature & Color -->
+        <section id="view-temp" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="glass p-8 rounded-3xl space-y-6">
+                <div>
+                    <h2 class="text-xl font-bold mb-2"><i class="fas fa-thermometer-half mr-2 text-red-400"></i> 별의 온도와 색깔</h2>
+                    <p class="text-sm text-slate-400">온도가 높을수록 별은 어떤 색으로 보일까요? (빈의 변위 법칙)</p>
+                </div>
+                
+                <div class="space-y-4">
+                    <div class="flex justify-between font-mono"><span class="text-slate-400">표면 온도 (T)</span><span id="t-val" class="text-blue-400 text-xl">6,000 K</span></div>
+                    <input type="range" id="t-slider" min="3000" max="30000" step="100" value="6000" class="w-full">
+                    <div class="flex justify-between text-[10px] text-slate-500 italic"><span>3,000K (저온, 긴 파장)</span><span>30,000K (고온, 짧은 파장)</span></div>
+                </div>
+
+                <div class="pt-4">
+                    <p class="text-sm font-bold mb-3 text-slate-300">대표적인 별 선택해보기:</p>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="setTemp(3500, '베텔게우스')" class="bg-slate-800 hover:bg-red-900/40 p-3 rounded-xl text-left transition text-xs border border-slate-700">🔴 베텔게우스 (3,500K)</button>
+                        <button onclick="setTemp(5800, '태양')" class="bg-slate-800 hover:bg-yellow-900/40 p-3 rounded-xl text-left transition text-xs border border-slate-700">🟡 태양 (5,800K)</button>
+                        <button onclick="setTemp(10000, '시리우스')" class="bg-slate-800 hover:bg-blue-900/40 p-3 rounded-xl text-left transition text-xs border border-slate-700">⚪ 시리우스 (10,000K)</button>
+                        <button onclick="setTemp(25000, '스피카')" class="bg-slate-800 hover:bg-indigo-900/40 p-3 rounded-xl text-left transition text-xs border border-slate-700">🔵 스피카 (25,000K)</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col items-center justify-center glass rounded-3xl min-h-[400px] relative overflow-hidden">
+                <div id="star-visual" class="star-glow w-48 h-48"></div>
+                <div class="mt-8 text-center">
+                    <p id="star-name-display" class="text-xl font-bold text-white mb-1">별의 모습</p>
+                    <p id="star-color-text" class="text-slate-400">노란색 (주계열성 단계)</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Parallax & Distance -->
+        <section id="view-dist" class="hidden grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="glass p-8 rounded-3xl space-y-6">
+                <div>
+                    <h2 class="text-xl font-bold mb-2"><i class="fas fa-arrows-alt-h mr-2 text-green-400"></i> 연주시차와 거리</h2>
+                    <p class="text-sm text-slate-400">지구가 공전함에 따라 보이는 별의 각도 변화를 측정합니다.</p>
+                </div>
+                <div class="space-y-6">
+                    <div>
+                        <div class="flex justify-between font-mono mb-2"><span class="text-slate-400">연주시차 (p)</span><span id="p-val" class="text-green-400 text-xl">0.10"</span></div>
+                        <input type="range" id="p-slider" min="0.01" max="1.0" step="0.01" value="0.1" class="w-full">
+                    </div>
+                    <div class="bg-slate-900/50 p-4 rounded-2xl border border-slate-700">
+                        <p class="text-xs text-slate-500 mb-2 font-bold">계산된 결과</p>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div><p class="text-[10px] text-slate-400 uppercase">거리 (parsec)</p><p id="res-pc" class="text-lg font-bold">10.00 pc</p></div>
+                            <div><p class="text-[10px] text-slate-400 uppercase">거리 (Light Year)</p><p id="res-ly" class="text-lg font-bold">32.62 ly</p></div>
+                        </div>
+                        <p class="mt-4 text-[11px] text-blue-400 italic font-mono">공식: d(pc) = 1 / p(")</p>
+                    </div>
+                </div>
+            </div>
+            <div class="glass rounded-3xl min-h-[400px] relative flex items-center justify-center p-4">
+                <!-- Parallax Diagram -->
+                <div class="relative w-full h-full flex flex-col items-center justify-between py-10">
+                    <div id="target-star" class="w-4 h-4 bg-white rounded-full shadow-[0_0_15px_white]"></div>
+                    <div class="w-full border-t border-slate-700 relative">
+                        <div class="absolute -top-1 left-1/2 -translate-x-1/2 w-1 h-20 border-l border-dashed border-slate-600"></div>
+                        <div class="orbit w-40 h-20 -top-10 left-1/2 -translate-x-1/2"></div>
+                        <div class="earth left-[calc(50%-85px)] top-[-6px]"></div>
+                        <div class="earth left-[calc(50%+73px)] top-[-6px]"></div>
+                        <div class="absolute -bottom-8 left-1/2 -translate-x-1/2 text-[10px] text-slate-500">지구 공전 궤도 (1년 간격 관측)</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Magnitudes -->
+        <section id="view-mag" class="hidden grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="glass p-8 rounded-3xl space-y-6">
+                <div>
+                    <h2 class="text-xl font-bold mb-2"><i class="fas fa-sun mr-2 text-yellow-400"></i> 겉보기 등급 vs 절대 등급</h2>
+                    <p class="text-sm text-slate-400">별을 10pc 거리로 옮겼을 때의 밝기가 절대 등급입니다.</p>
+                </div>
+                <div class="space-y-6">
+                    <div>
+                        <div class="flex justify-between font-mono mb-2"><span class="text-slate-400">관측 거리 조절 (d)</span><span id="m-dist-val" class="text-yellow-400 text-xl">10.0 pc</span></div>
+                        <input type="range" id="m-dist-slider" min="1.3" max="100" step="0.1" value="10" class="w-full">
+                    </div>
+                    <div class="bg-slate-900/50 p-6 rounded-2xl border border-slate-700 space-y-4">
+                        <div class="flex justify-between items-center pb-2 border-b border-slate-800">
+                            <span class="text-sm">절대 등급 (M) <span class="text-[10px] block text-slate-500">(10pc 거리에서의 밝기)</span></span>
+                            <span class="text-xl font-bold text-blue-400">4.8</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-bold">겉보기 등급 (m) <span class="text-[10px] block text-slate-500">(현재 거리에서 보이는 밝기)</span></span>
+                            <span id="m-app-val" class="text-3xl font-black text-yellow-400">4.80</span>
+                        </div>
+                    </div>
+                    <p class="text-[10px] text-slate-500 font-mono italic">거리 지수 공식: m - M = 5log₁₀d - 5</p>
+                </div>
+            </div>
+            <div class="glass rounded-3xl min-h-[400px] flex flex-col items-center justify-center p-8">
+                <div class="relative w-full h-2 bg-slate-800 rounded-full mb-20">
+                    <div class="absolute left-0 -top-8 text-[10px] text-slate-500 italic font-bold">EARTH</div>
+                    <div class="absolute left-[10%] -top-2 w-1 h-6 bg-blue-500"><span class="absolute -bottom-6 -left-2 text-[10px] whitespace-nowrap text-blue-400">기준 (10pc)</span></div>
+                    <div id="mag-star-pos" class="absolute transition-all duration-300" style="left: 10%;">
+                        <div id="mag-star-visual" class="w-10 h-10 bg-yellow-200 rounded-full shadow-[0_0_30px_#fde047]"></div>
+                        <p class="absolute -bottom-8 left-1/2 -translate-x-1/2 text-xs font-bold whitespace-nowrap" id="mag-pos-text">10.0pc</p>
+                    </div>
+                </div>
+                <div class="text-center bg-slate-800/40 p-4 rounded-xl w-full">
+                    <p id="mag-desc" class="text-sm leading-relaxed text-slate-300">
+                        별이 기준 거리(10pc)에 있으므로,<br><b>겉보기 등급과 절대 등급이 같습니다.</b>
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- AI Assistant (Common) -->
+        <div class="mt-10 glass p-6 rounded-3xl border-purple-500/20">
+            <h3 class="font-bold mb-4 flex items-center text-purple-400"><i class="fas fa-robot mr-2"></i> AI 천문학자 사고 실험 피드백</h3>
+            <div class="flex flex-col md:flex-row gap-4">
+                <textarea id="ai-input" class="flex-1 bg-slate-900 border border-slate-700 rounded-2xl p-4 text-sm focus:ring-2 focus:ring-purple-500 outline-none" rows="2" placeholder="가설을 세워보세요! 예: 별의 온도가 2배가 되면 색깔은 어떻게 변할까?"></textarea>
+                <button onclick="askAI()" id="ai-btn" class="bg-gradient-to-br from-purple-600 to-blue-600 px-6 py-4 rounded-2xl font-bold hover:scale-105 transition-transform shrink-0">분석 시작</button>
+            </div>
+            <div id="ai-output" class="hidden mt-4 p-5 bg-slate-950/50 rounded-2xl text-sm leading-relaxed text-slate-300 border-l-4 border-purple-500"></div>
+        </div>
+
+    </main>
+
+    <!-- Settings Modal -->
+    <div id="modal" class="fixed inset-0 bg-black/90 hidden flex items-center justify-center z-50 p-6">
+        <div class="bg-slate-900 p-8 rounded-3xl max-w-sm w-full border border-slate-700">
+            <h2 class="text-xl font-bold mb-4 text-white">Gemini API 설정</h2>
+            <input type="password" id="api-key" class="w-full bg-slate-800 border border-slate-700 p-3 rounded-xl mb-4 text-white" placeholder="API Key 입력">
+            <div class="flex gap-2">
+                <button onclick="saveSettings()" class="flex-1 bg-blue-600 py-3 rounded-xl font-bold">저장</button>
+                <button onclick="closeSettings()" class="flex-1 bg-slate-700 py-3 rounded-xl">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- State Management ---
+        let currentTab = 'temp';
+        let currentStarData = { temp: 6000, name: '태양' };
+
+        function switchTab(tab) {
+            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+            document.querySelectorAll('nav button').forEach(b => b.classList.remove('tab-active'));
+            document.getElementById('view-' + tab).classList.remove('hidden');
+            document.getElementById('tab-' + tab).classList.add('tab-active');
+            currentTab = tab;
+        }
+
+        // --- Tab 1: Temp Logic ---
+        const tSlider = document.getElementById('t-slider');
+        function getStarColor(K) {
+            if (K < 3500) return { name: '적색 (M형)', hex: '#ff4d4d' };
+            if (K < 5000) return { name: '주황색 (K형)', hex: '#ffa347' };
+            if (K < 6500) return { name: '노란색 (G형)', hex: '#fff48a' };
+            if (K < 10000) return { name: '황백색 (F형)', hex: '#ffffff' };
+            if (K < 20000) return { name: '백색 (A형)', hex: '#e6efff' };
+            if (K < 30000) return { name: '청백색 (B형)', hex: '#99bbff' };
+            return { name: '청색 (O형)', hex: '#4d88ff' };
+        }
+
+        function updateTempUI() {
+            const temp = tSlider.value;
+            const color = getStarColor(temp);
+            document.getElementById('t-val').innerText = `${parseInt(temp).toLocaleString()} K`;
+            const visual = document.getElementById('star-visual');
+            visual.style.backgroundColor = color.hex;
+            visual.style.setProperty('--glow-color', color.hex);
+            document.getElementById('star-color-text').innerText = color.name;
+            if(temp == currentStarData.temp) {
+                document.getElementById('star-name-display').innerText = currentStarData.name;
+            } else {
+                document.getElementById('star-name-display').innerText = "가상의 별";
+            }
+        }
+
+        function setTemp(val, name) {
+            tSlider.value = val;
+            currentStarData = { temp: val, name: name };
+            updateTempUI();
+        }
+
+        // --- Tab 2: Distance Logic ---
+        const pSlider = document.getElementById('p-slider');
+        function updateDistUI() {
+            const p = parseFloat(pSlider.value);
+            const pc = 1 / p;
+            const ly = pc * 3.26156;
+            document.getElementById('p-val').innerText = p.toFixed(2) + '"';
+            document.getElementById('res-pc').innerText = pc.toFixed(2) + ' pc';
+            document.getElementById('res-ly').innerText = ly.toFixed(2) + ' ly';
+            
+            // 시각화 업데이트 (별의 크기 조절로 거리감 표현)
+            const star = document.getElementById('target-star');
+            const scale = 0.5 + (p * 2);
+            star.style.transform = `scale(${scale})`;
+        }
+
+        // --- Tab 3: Magnitude Logic ---
+        const mSlider = document.getElementById('m-dist-slider');
+        function updateMagUI() {
+            const d = parseFloat(mSlider.value);
+            const M = 4.8; // 절대등급 기준 (태양급 별)
+            const m = M + 5 * Math.log10(d) - 5;
+            
+            document.getElementById('m-dist-val').innerText = d.toFixed(1) + ' pc';
+            document.getElementById('m-app-val').innerText = m.toFixed(2);
+            
+            const starPos = document.getElementById('mag-star-pos');
+            starPos.style.left = (d) + '%';
+            document.getElementById('mag-pos-text').innerText = d.toFixed(1) + 'pc';
+            
+            // 밝기에 따른 시각 효과
+            const starVis = document.getElementById('mag-star-visual');
+            const brightness = Math.max(0.1, 1 - (m / 15));
+            starVis.style.opacity = brightness + 0.2;
+            starVis.style.transform = `scale(${1.5 - (d/100)})`;
+
+            let desc = "";
+            if (d < 10) desc = "별이 10pc보다 <b>가까이</b> 있습니다.<br>겉보기 등급(m)이 절대 등급(M)보다 <b>작게(밝게)</b> 측정됩니다.";
+            else if (d > 10) desc = "별이 10pc보다 <b>멀리</b> 있습니다.<br>겉보기 등급(m)이 절대 등급(M)보다 <b>크게(어둡게)</b> 측정됩니다.";
+            else desc = "별이 기준 거리(10pc)에 있으므로,<br><b>겉보기 등급과 절대 등급이 같습니다.</b>";
+            document.getElementById('mag-desc').innerHTML = desc;
+        }
+
+        // --- AI API Logic ---
+        async function askAI() {
+            const key = localStorage.getItem('gemini_api_key');
+            if(!key) { alert('설정에서 API Key를 먼저 입력해주세요.'); openSettings(); return; }
+            
+            const input = document.getElementById('ai-input').value;
+            if(!input) return;
+
+            const btn = document.getElementById('ai-btn');
+            const output = document.getElementById('ai-output');
+            
+            btn.disabled = true;
+            btn.innerText = "천문학자 분석 중...";
+            output.classList.remove('hidden');
+            output.innerText = "데이터 계산 중...";
+
+            const prompt = `천문학 선생님으로서 다음 질문에 답변하세요.
+            현재 학생이 보고 있는 실험 정보: 
+            - 선택한 실험: ${currentTab}
+            - 현재 온도 설정: ${tSlider.value}K
+            - 현재 연주시차: ${pSlider.value}"
+            - 현재 거리: ${1/parseFloat(pSlider.value)}pc
+            질문: "${input}"
+            중고등학생이 이해하기 쉽게 과학적 원리(빈의 법칙, 시차 공식, 거리 지수 등)를 포함하여 설명하고 마지막엔 칭찬 한마디를 해주세요.`;
+
+            try {
+                const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                });
+                const data = await resp.json();
+                output.innerHTML = data.candidates[0].content.parts[0].text.replace(/\n/g, '<br>');
+            } catch (e) {
+                output.innerText = "오류가 발생했습니다. API 키를 확인해주세요.";
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "분석 시작";
+            }
+        }
+
+        // --- Settings ---
+        function openSettings() { document.getElementById('modal').classList.remove('hidden'); }
+        function closeSettings() { document.getElementById('modal').classList.add('hidden'); }
+        function saveSettings() {
+            localStorage.setItem('gemini_api_key', document.getElementById('api-key').value);
+            closeSettings();
+        }
+
+        // --- Listeners ---
+        tSlider.oninput = updateTempUI;
+        pSlider.oninput = updateDistUI;
+        mSlider.oninput = updateMagUI;
+
+        // Init
+        updateTempUI();
+        updateDistUI();
+        updateMagUI();
+    </script>
+</body>
+</html>
